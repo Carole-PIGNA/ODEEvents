@@ -1,15 +1,58 @@
 @import "tailwindcss";
 
+/* 🌿 Palette chic & naturelle */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Couleurs principales */
+  --background: #FAF9F6;         /* Blanc cassé / Ivoire */
+  --foreground: #171717;         /* Gris anthracite */
+
+  --color-ivory:#FAF9F6;
+  --color-sage: #A3B18A;         /* Vert sauge */
+  --color-sage-light: #E9F0E6;   /* Sauge clair */
+  --color-sage-pastel: #D9E5D0;  /* Sauge pastel */
+  --color-sage-dark: #7C946E;    /* Sauge profond */
+  --color-sage-deep: #5F7553;    /* Sauge intense */
+
+  --color-gray: #BFBFBF;         /* Gris perle */
+  --color-gray-light: #D8D8D8;   /* Gris clair */
+  --color-gray-pale: #EAEAEA;    /* Gris très pâle */
+  --color-gray-dark: #9E9E9E;    /* Gris doux foncé */
+  --color-gray-deep: #7A7A7A;    /* Gris profond */
+
+  --color-rose: #E6B7C2;         /* Rose poudré */
+}
+
+.dark {
+  /* 🌙 Palette sombre */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  --color-sage: #7A8F6B;
+  --color-sage-light: #A3B18A;
+  --color-sage-dark: #5F7553;
+
+  --color-gray: #999999;
+  --color-gray-light: #BFBFBF;
+  --color-gray-dark: #7A7A7A;
+
+  --color-rose: #C48A9A;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-sage: var(--color-sage);
+  --color-sage-light: var(--color-sage-light);
+  --color-sage-dark: var(--color-sage-dark);
+  --color-gray: var(--color-gray);
+  --color-gray-light: var(--color-gray-light);
+  --color-gray-dark: var(--color-gray-dark);
+  --color-rose: var(--color-rose);
+
+  /* ✒️ Typographies */
+  --font-serif: "Playfair Display", serif;
+  --font-script: "Great Vibes", cursive;
+  --font-sans: "Montserrat", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +62,92 @@
   }
 }
 
+/* 🌸 Base */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Titres Hero (sur fond sombre ou vidéo) */
+.heading-hero {
+  font-family: var(--font-serif);
+  color: var(--color-ivory);
+}
+
+/* Titres par défaut (sections classiques) */
+.heading-default {
+  font-family: var(--font-serif);
+  color: var(--foreground);
+}
+
+.heading-accent {
+  font-family: var(--font-serif);
+  color: var(--color-sage-deep);
+}
+
+.heading-body {
+   font-family: var(--font-serif);
+    color: var(--foreground);
+    text-transform: uppercase;
+    font-weight: 300; 
+    font-size:large;
+    letter-spacing: 0.01em;
+
+}
+
+
+
+
+/* Accents manuscrits (citations, signatures) */
+blockquote, .signature {
+  font-family: var(--font-script);
+  color: var(--color-rose);
+}
+
+/* Boutons */
+.btn-primary {
+  background-color: var(--color-sage-deep);
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  transition: background 0.3s ease;
+}
+.btn-primary:hover {
+  background-color: var(--color-sage-dark);
+}
+
+/* Animations */
+@keyframes fadeZoom {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeZoom {
+  animation: fadeZoom 0.6s ease-out forwards;
+}
+
+.animate-delay-100 { animation-delay: 0.1s; }
+.animate-delay-200 { animation-delay: 0.2s; }
+.animate-delay-300 { animation-delay: 0.3s; }
+
+@keyframes slideFadeLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideFadeLeft {
+  animation: slideFadeLeft 0.8s ease-out forwards;
 }
