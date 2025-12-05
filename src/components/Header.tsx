@@ -23,10 +23,10 @@ export default function Header() {
             {/* Menu desktop */}
         <nav className="hidden md:flex items-center space-x-6 font-sans text-sm tracking-wide">
           <Link href="/" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Accueil</Link>
-          <Link href="/boutique" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Boutique</Link>
+          <Link href="/LocationPage" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Location</Link>
           <Link href="/inspirations" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Inspirations</Link>
-          <Link href="/#services" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Services</Link>
-          <Link href="/blog" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Conseils</Link>
+          <Link href="/devisservice" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Devis</Link>
+          <Link href="/blog" className="text-[var(--color-ivory)] hover:text-[var(--color-rose)] transition-colors">Blog</Link>
           <Link 
             href="/contact" 
             className="px-4 py-2 bg-[var(--color-sage-deep)] text-white  hover:bg-[var(--color-sage-dark)] transition font-semibold"
@@ -57,7 +57,7 @@ export default function Header() {
           <Link href="/" className="block menu-link">Accueil</Link>
           <Link href="/boutique" className="block menu-link">Boutique</Link>
           <Link href="/#inspirations" className="block menu-link">Inspirations</Link>
-          <Link href="/#services" className="block menu-link">Services</Link>
+          <Link href="/devisservice" className="block menu-link">Devis</Link>
           <Link href="/blog" className="block menu-link">Conseils</Link>
           <Link 
             href="/contact" 

@@ -66,8 +66,8 @@ export default function Services() {
         <div className="flex flex-col gap-12">
           <ServiceCard
             icon={<ShoppingBagIcon className="h-8 w-8" />}
-            title="Tenues & accessoires"
-            text="Robes, costumes et accessoires pour mariés, demoiselles et hommes d'honneur — tout pour sublimer votre style."
+            title="Location de matériel"
+            text=" Vous pouvez louer le matériel ou accessoieres pour votre décoration ."
           />
           <ServiceCard
             icon={<CleanIcon className="h-8 w-8" />}
