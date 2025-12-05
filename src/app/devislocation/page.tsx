@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 
-export default function DevisLocationPage() {
+function DevisLocationForm() {
   const searchParams = useSearchParams();
   const item = searchParams.get("item") || "";
 
@@ -24,7 +24,6 @@ export default function DevisLocationPage() {
   const [emailjs, setEmailjs] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // Import dynamique de emailjs uniquement côté client
   useEffect(() => {
     import("emailjs-com").then((mod) => setEmailjs(mod));
   }, []);
@@ -209,5 +208,14 @@ export default function DevisLocationPage() {
         </form>
       </div>
     </section>
+  );
+}
+
+// ✅ Export avec Suspense wrapper
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Chargement du formulaire...</div>}>
+      <DevisLocationForm />
+    </Suspense>
   );
 }

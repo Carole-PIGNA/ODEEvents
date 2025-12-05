@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 
 const themes = {
   "boheme-chic": {
@@ -40,7 +40,8 @@ const themes = {
   },
 };
 
-export default function DevisPage() {
+// ✅ Sous-composant qui utilise useSearchParams
+function DevisForm() {
   const searchParams = useSearchParams();
   const themeKey = searchParams.get("theme") || "boheme-chic";
   const theme = themes[themeKey as keyof typeof themes];
@@ -135,6 +136,7 @@ export default function DevisPage() {
           onSubmit={handleSubmit}
           className="bg-[var(--color-sage-light)] p-8 rounded-lg shadow-md space-y-6"
         >
+          {/* Champs du formulaire */}
           <div>
             <label className="block mb-2 font-semibold">Nom complet</label>
             <input
@@ -245,5 +247,14 @@ export default function DevisPage() {
         </form>
       </div>
     </section>
+  );
+}
+
+// ✅ Export avec Suspense wrapper
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Chargement du formulaire...</div>}>
+      <DevisForm />
+    </Suspense>
   );
 }
