@@ -3,8 +3,21 @@
 import { useState } from "react";
 import emailjs from "emailjs-com";
 
+// Définition du type du formulaire
+interface FormData {
+  nom: string;
+  email: string;
+  phone: string;
+  subject: string;
+  date: string;
+  lieu: string;
+  invites: string;
+  items: string[];   // ✅ tableau de chaînes
+  message: string;
+}
+
 export default function DevisPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     nom: "",
     email: "",
     phone: "",
@@ -16,28 +29,30 @@ export default function DevisPage() {
     message: "",
   });
 
-  const handleChange = (field: string, value: string) => {
+  // Fonction générique pour mettre à jour un champ
+  const handleChange = (field: keyof FormData, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
+  // Soumission du formulaire
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     emailjs
       .send(
         "service_nv3htf6",        // Service ID
-        "template_4goqrub",       // Template universel
+        "template_4goqrub",       // Template ID
         {
-          type: "devis_service",  
-          nom: formData.nom || "",
-          email: formData.email || "",
-          phone: formData.phone || "",
-          subject: formData.subject || "",
-          date: formData.date || "",
-          lieu: formData.lieu || "",
-          invites: formData.invites || "",
-          items: formData.items.join(", ") || "",
-          message: formData.message || "",
+          type: "devis_service",
+          nom: formData.nom,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          date: formData.date,
+          lieu: formData.lieu,
+          invites: formData.invites,
+          items: formData.items.join(", "),
+          message: formData.message,
         },
         "C_AUJ_AaUA_VQjseU"       // Public Key
       )
