@@ -55,8 +55,8 @@ export default function Header() {
       {menuOpen && (
         <div className="md:hidden bg-[var(--background)] text-center py-6 space-y-4 font-sans shadow-lg">
           <Link href="/" className="block menu-link">Accueil</Link>
-          <Link href="/boutique" className="block menu-link">Boutique</Link>
-          <Link href="/#inspirations" className="block menu-link">Inspirations</Link>
+          <Link href="/LocationPage" className="block menu-link">Location</Link>
+          <Link href="/inspirations" className="block menu-link">Inspirations</Link>
           <Link href="/devisservice" className="block menu-link">Devis</Link>
           <Link href="/blog" className="block menu-link">Conseils</Link>
           <Link 
