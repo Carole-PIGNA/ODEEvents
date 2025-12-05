@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 
-//deploy vercel test
 // Définition du type du formulaire
 interface FormData {
   nom: string;
@@ -30,8 +29,9 @@ export default function DevisPage() {
   });
 
   const [emailjs, setEmailjs] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Import dynamique de emailjs côté client uniquement
+  // Import dynamique de emailjs uniquement côté client
   useEffect(() => {
     import("emailjs-com").then((mod) => setEmailjs(mod));
   }, []);
@@ -40,16 +40,22 @@ export default function DevisPage() {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailjs) return; // sécurité si emailjs n'est pas encore chargé
+    setLoading(true);
 
-    emailjs
-      .send(
+    if (!emailjs) {
+      alert("Le service d'envoi n'est pas encore prêt, réessayez dans un instant.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await emailjs.send(
         "service_nv3htf6",        // Service ID
         "template_4goqrub",       // Template ID
         {
-          type: "devis_service",
+          type: "devis_service",  // 👉 identifie le type de devis
           nom: formData.nom,
           email: formData.email,
           phone: formData.phone,
@@ -61,27 +67,26 @@ export default function DevisPage() {
           message: formData.message,
         },
         "C_AUJ_AaUA_VQjseU"       // Public Key
-      )
-      .then(
-        () => {
-          alert("Votre demande de devis a été envoyée !");
-          setFormData({
-            nom: "",
-            email: "",
-            phone: "",
-            subject: "",
-            date: "",
-            lieu: "",
-            invites: "",
-            items: [],
-            message: "",
-          });
-        },
-        (error: any) => {
-          console.error("Erreur :", error);
-          alert("Une erreur est survenue, merci de réessayer.");
-        }
       );
+
+      alert("Votre demande de devis a été envoyée !");
+      setFormData({
+        nom: "",
+        email: "",
+        phone: "",
+        subject: "",
+        date: "",
+        lieu: "",
+        invites: "",
+        items: [],
+        message: "",
+      });
+    } catch (error) {
+      console.error("Erreur :", error);
+      alert("Une erreur est survenue, merci de réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -207,9 +212,10 @@ export default function DevisPage() {
 
           <button
             type="submit"
-            className="px-6 py-2 bg-[var(--color-sage-deep)] text-white rounded-md hover:bg-[var(--color-sage-dark)] transition font-semibold"
+            disabled={loading}
+            className="px-6 py-2 bg-[var(--color-sage-deep)] text-white rounded-md hover:bg-[var(--color-sage-dark)] transition font-semibold disabled:opacity-50"
           >
-            Envoyer ma demande
+            {loading ? "Envoi en cours..." : "Envoyer ma demande"}
           </button>
         </form>
       </div>
