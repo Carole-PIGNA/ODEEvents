@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import emailjs from "emailjs-com";
+import { useState, useEffect } from "react";
 
 // Définition du type du formulaire
 interface FormData {
@@ -12,7 +11,7 @@ interface FormData {
   date: string;
   lieu: string;
   invites: string;
-  items: string[];   // ✅ tableau de chaînes
+  items: string[];
   message: string;
 }
 
@@ -29,14 +28,20 @@ export default function DevisPage() {
     message: "",
   });
 
-  // Fonction générique pour mettre à jour un champ
+  const [emailjs, setEmailjs] = useState<any>(null);
+
+  // Import dynamique de emailjs côté client uniquement
+  useEffect(() => {
+    import("emailjs-com").then((mod) => setEmailjs(mod));
+  }, []);
+
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  // Soumission du formulaire
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!emailjs) return; // sécurité si emailjs n'est pas encore chargé
 
     emailjs
       .send(
@@ -71,7 +76,7 @@ export default function DevisPage() {
             message: "",
           });
         },
-        (error) => {
+        (error: any) => {
           console.error("Erreur :", error);
           alert("Une erreur est survenue, merci de réessayer.");
         }
