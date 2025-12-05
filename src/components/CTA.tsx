@@ -12,7 +12,7 @@ export default function CTA() {
     </p>
     <div className="flex flex-col md:flex-row gap-4 justify-center">
       <a
-        href="/devis"
+        href="/devisservice"
         className="bg-[var(--color-sage-deep)] hover:bg-[var(--color-sage)] text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
       >
         Demander un devis
