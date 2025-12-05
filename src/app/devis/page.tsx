@@ -1,8 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
-import emailjs from "emailjs-com";
+import { useState, useEffect, Suspense } from "react";
 
 const themes = {
   "boheme-chic": {
@@ -41,7 +40,8 @@ const themes = {
   },
 };
 
-export default function DevisPage() {
+// ✅ Sous-composant qui utilise useSearchParams
+function DevisForm() {
   const searchParams = useSearchParams();
   const themeKey = searchParams.get("theme") || "boheme-chic";
   const theme = themes[themeKey as keyof typeof themes];
@@ -58,60 +58,71 @@ export default function DevisPage() {
     message: theme.message,
   });
 
+  const [emailjs, setEmailjs] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    import("emailjs-com").then((mod) => setEmailjs(mod));
+  }, []);
+
   const handleChangeItem = (index: number) => {
     const newItems = [...formData.items];
     newItems[index].checked = !newItems[index].checked;
     setFormData({ ...formData, items: newItems });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    // On récupère uniquement les items cochés
+    if (!emailjs) {
+      alert("Le service d'envoi n'est pas encore prêt, réessayez dans un instant.");
+      setLoading(false);
+      return;
+    }
+
     const selectedItems = formData.items
       .filter((item) => item.checked)
-      .map((item) => item.name)
-      .join(", ");
+      .map((item) => item.name);
 
-    emailjs
-      .send(
-        "service_nv3htf6",          // Service ID
-        "template_4goqrub",         // Template universel
+    try {
+      await emailjs.send(
+        "service_nv3htf6",
+        "template_4goqrub",
         {
-          type: "devis_inspiration", // 👉 identifie le type
-          theme: theme.title,        // 👉 ajoute le thème choisi
-          nom: formData.nom || "",
-          email: formData.email || "",
-          phone: formData.phone || "",
-          subject: formData.subject || "",
-          date: formData.date || "",
-          lieu: formData.lieu || "",
-          invites: formData.invites || "",
-          items: selectedItems || "",
-          message: formData.message || "",
+          type: "devis_inspiration",
+          theme: theme.title,
+          nom: formData.nom,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          date: formData.date,
+          lieu: formData.lieu,
+          invites: formData.invites,
+          items: selectedItems.join(", "),
+          message: formData.message,
         },
-        "C_AUJ_AaUA_VQjseU"         // Public Key
-      )
-      .then(
-        () => {
-          alert("Votre demande de devis a été envoyée !");
-          setFormData({
-            nom: "",
-            email: "",
-            phone: "",
-            subject: "",
-            date: "",
-            lieu: "",
-            invites: "",
-            items: theme.items.map((item) => ({ name: item, checked: true })),
-            message: theme.message,
-          });
-        },
-        (error) => {
-          console.error("Erreur :", error);
-          alert("Une erreur est survenue, merci de réessayer.");
-        }
+        "C_AUJ_AaUA_VQjseU"
       );
+
+      alert("Votre demande de devis a été envoyée !");
+      setFormData({
+        nom: "",
+        email: "",
+        phone: "",
+        subject: "",
+        date: "",
+        lieu: "",
+        invites: "",
+        items: theme.items.map((item) => ({ name: item, checked: true })),
+        message: theme.message,
+      });
+    } catch (error) {
+      console.error("Erreur :", error);
+      alert("Une erreur est survenue, merci de réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -125,14 +136,13 @@ export default function DevisPage() {
           onSubmit={handleSubmit}
           className="bg-[var(--color-sage-light)] p-8 rounded-lg shadow-md space-y-6"
         >
-          {/* Infos personnelles */}
+          {/* Champs du formulaire */}
           <div>
             <label className="block mb-2 font-semibold">Nom complet</label>
             <input
               type="text"
               value={formData.nom}
               onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-              placeholder="Ex: Marie Dupont"
               className="w-full border rounded-md p-2"
               required
             />
@@ -144,20 +154,17 @@ export default function DevisPage() {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="Ex: marie.dupont@email.com"
               className="w-full border rounded-md p-2"
               required
             />
           </div>
 
-          {/* Infos générales */}
           <div>
             <label className="block mb-2 font-semibold">Téléphone</label>
             <input
               type="tel"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              placeholder="Ex: +33 6 12 34 56 78"
               className="w-full border rounded-md p-2"
             />
           </div>
@@ -168,7 +175,6 @@ export default function DevisPage() {
               type="text"
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              placeholder="Ex: Demande de devis inspiration"
               className="w-full border rounded-md p-2"
             />
           </div>
@@ -189,7 +195,6 @@ export default function DevisPage() {
               type="text"
               value={formData.lieu}
               onChange={(e) => setFormData({ ...formData, lieu: e.target.value })}
-              placeholder="Ex: Château de Versailles"
               className="w-full border rounded-md p-2"
             />
           </div>
@@ -199,15 +204,11 @@ export default function DevisPage() {
             <input
               type="number"
               value={formData.invites}
-              onChange={(e) =>
-                setFormData({ ...formData, invites: e.target.value })
-              }
-              placeholder="Ex: 120"
+              onChange={(e) => setFormData({ ...formData, invites: e.target.value })}
               className="w-full border rounded-md p-2"
             />
           </div>
 
-          {/* Éléments suggérés */}
           <div>
             <label className="block mb-2 font-semibold">Éléments à louer</label>
             <div className="space-y-2">
@@ -224,7 +225,6 @@ export default function DevisPage() {
             </div>
           </div>
 
-          {/* Message personnalisé */}
           <div>
             <label className="block mb-2 font-semibold">Message</label>
             <textarea
@@ -239,12 +239,22 @@ export default function DevisPage() {
 
           <button
             type="submit"
-            className="px-6 py-2 bg-[var(--color-sage-deep)] text-white rounded-md hover:bg-[var(--color-sage-dark)] transition font-semibold"
+            disabled={loading}
+            className="px-6 py-2 bg-[var(--color-sage-deep)] text-white rounded-md hover:bg-[var(--color-sage-dark)] transition font-semibold disabled:opacity-50"
           >
-            Envoyer ma demande
+            {loading ? "Envoi en cours..." : "Envoyer ma demande"}
           </button>
         </form>
       </div>
     </section>
+  );
+}
+
+// ✅ Export avec Suspense wrapper
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Chargement du formulaire...</div>}>
+      <DevisForm />
+    </Suspense>
   );
 }

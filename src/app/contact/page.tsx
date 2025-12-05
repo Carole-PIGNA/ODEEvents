@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import emailjs from "emailjs-com";
+import { useState, useEffect } from "react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -12,11 +11,17 @@ export default function ContactPage() {
     date: "",
     lieu: "",
     invites: "",
-    items: [],
+    items: [] as string[],
     message: "",
   });
 
   const [loading, setLoading] = useState(false);
+  const [emailjs, setEmailjs] = useState<any>(null);
+
+  // Import dynamique de emailjs uniquement côté client
+  useEffect(() => {
+    import("emailjs-com").then((mod) => setEmailjs(mod));
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -24,50 +29,53 @@ export default function ContactPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    emailjs
-      .send(
+    if (!emailjs) {
+      alert("Le service d'envoi n'est pas encore prêt, réessayez dans un instant.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await emailjs.send(
         "service_nv3htf6",       // Service ID
-        "template_4goqrub",      // Template universel
+        "template_4goqrub",      // Template ID
         {
-          type: "contact",                         // Identifie le formulaire
+          type: "contact",       // Identifie le formulaire
           nom: formData.nom || "",
           email: formData.email || "",
           phone: formData.phone || "",
           subject: formData.subject || "",
-          date: formData.date || "",              // vide mais requis par le template
+          date: formData.date || "",
           lieu: formData.lieu || "",
           invites: formData.invites || "",
           items: formData.items.join(", ") || "",
           message: formData.message || "",
         },
-        "C_AUJ_AaUA_VQjseU"       // Public Key
-      )
-      .then(
-        () => {
-          alert("Merci pour votre message 💌 Nous vous répondrons rapidement !");
-          setFormData({
-            nom: "",
-            email: "",
-            phone: "",
-            subject: "",
-            date: "",
-            lieu: "",
-            invites: "",
-            items: [],
-            message: "",
-          });
-          setLoading(false);
-        },
-        (error) => {
-          console.error("Erreur :", error);
-          alert("Une erreur est survenue, merci de réessayer.");
-          setLoading(false);
-        }
+        "C_AUJ_AaUA_VQjseU"      // Public Key
       );
+
+      alert("Merci pour votre message 💌 Nous vous répondrons rapidement !");
+      setFormData({
+        nom: "",
+        email: "",
+        phone: "",
+        subject: "",
+        date: "",
+        lieu: "",
+        invites: "",
+        items: [],
+        message: "",
+      });
+    } catch (error) {
+      console.error("Erreur :", error);
+      alert("Une erreur est survenue, merci de réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,12 +1,11 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
-import emailjs from "emailjs-com";
+import { useState, useEffect, Suspense } from "react";
 
-export default function DevisLocationPage() {
+function DevisLocationForm() {
   const searchParams = useSearchParams();
-  const item = searchParams.get("item") || ""; // récupère l’élément choisi depuis la page Location
+  const item = searchParams.get("item") || "";
 
   const [formData, setFormData] = useState({
     nom: "",
@@ -22,53 +21,66 @@ export default function DevisLocationPage() {
       : "",
   });
 
+  const [emailjs, setEmailjs] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    import("emailjs-com").then((mod) => setEmailjs(mod));
+  }, []);
+
   const handleChange = (field: string, value: string | string[]) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    emailjs
-      .send(
+    if (!emailjs) {
+      alert("Le service d'envoi n'est pas encore prêt, réessayez dans un instant.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await emailjs.send(
         "service_nv3htf6",        // Service ID
-        "template_4goqrub",       // Template universel
+        "template_4goqrub",       // Template ID
         {
-          type: "devis_location", // 👉 identifie le type
-          nom: formData.nom || "",
-          email: formData.email || "",
-          phone: formData.phone || "",
-          subject: formData.subject || "",
-          date: formData.date || "",
-          lieu: formData.lieu || "",
-          invites: formData.invites || "",
-          items: formData.items.join(", ") || "",
-          message: formData.message || "",
+          type: "devis_location", // 👉 identifie le type de devis
+          nom: formData.nom,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          date: formData.date,
+          lieu: formData.lieu,
+          invites: formData.invites,
+          items: formData.items.join(", "),
+          message: formData.message,
         },
         "C_AUJ_AaUA_VQjseU"       // Public Key
-      )
-      .then(
-        () => {
-          alert("Votre demande de devis location a été envoyée !");
-          setFormData({
-            nom: "",
-            email: "",
-            phone: "",
-            subject: "",
-            date: "",
-            lieu: "",
-            invites: "",
-            items: item ? [item] : [],
-            message: item
-              ? `Nous souhaitons louer : ${item}. Merci de nous proposer un devis adapté.`
-              : "",
-          });
-        },
-        (error) => {
-          console.error("Erreur :", error);
-          alert("Une erreur est survenue, merci de réessayer.");
-        }
       );
+
+      alert("Votre demande de devis location a été envoyée !");
+      setFormData({
+        nom: "",
+        email: "",
+        phone: "",
+        subject: "",
+        date: "",
+        lieu: "",
+        invites: "",
+        items: item ? [item] : [],
+        message: item
+          ? `Nous souhaitons louer : ${item}. Merci de nous proposer un devis adapté.`
+          : "",
+      });
+    } catch (error) {
+      console.error("Erreur :", error);
+      alert("Une erreur est survenue, merci de réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -107,6 +119,7 @@ export default function DevisLocationPage() {
             />
           </div>
 
+          {/* Infos générales */}
           <div>
             <label className="block mb-2 font-semibold">Téléphone</label>
             <input
@@ -187,12 +200,22 @@ export default function DevisLocationPage() {
 
           <button
             type="submit"
-            className="px-6 py-2 bg-[var(--color-sage-deep)] text-white rounded-md hover:bg-[var(--color-sage-dark)] transition font-semibold"
+            disabled={loading}
+            className="px-6 py-2 bg-[var(--color-sage-deep)] text-white rounded-md hover:bg-[var(--color-sage-dark)] transition font-semibold disabled:opacity-50"
           >
-            Envoyer ma demande
+            {loading ? "Envoi en cours..." : "Envoyer ma demande"}
           </button>
         </form>
       </div>
     </section>
+  );
+}
+
+// ✅ Export avec Suspense wrapper
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Chargement du formulaire...</div>}>
+      <DevisLocationForm />
+    </Suspense>
   );
 }
